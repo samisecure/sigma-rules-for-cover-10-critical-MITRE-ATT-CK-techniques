@@ -1,0 +1,39 @@
+####################################################################
+#Reflective Dll Injection
+#for this rule you must enable "script Block Logging" in GroupPolicy editor>Computer Configuration> administrative Template> Windows Component> Microoft Powershell> turn on "powershellscriptBlockLogging"
+#####################################################################
+title: Reflective Portable Executable Injection via PowerShell
+
+status: stable
+description: Detects the attempt of reflective portable executable (DLL/EXE) injection by PowerShell that uses API calls. This method is used by adversaries to evade detection from security products since the execution is masked under a legitimate process.
+author: Picus Security
+references:
+    - https://attack.mitre.org/techniques/T1055/
+    - https://attack.mitre.org/tactics/TA0004/
+    - https://attack.mitre.org/tactics/TA0005/
+logsource:
+    product: windows
+    service: powershell/operational
+    definition1: 'Requirements: Group Policy : Computer Configuration\Administrative Templates\Windows Components\Windows PowerShell\Turn On Module Logging'
+    definition2: 'Requirements: Group Policy : Computer Configuration\Administrative Templates\Windows Components\Windows PowerShell\Turn On PowerShell Script Block Logging'
+detection:
+    selection:
+        EventID: 4104
+    keyword1:
+        - '*kernel32.dll*'
+    keyword2:
+        - '*LoadLibraryA*'
+    keyword3:
+        - '*GetProcAddress*'
+    keyword4:
+        - '*VirtualAlloc*'
+    condition: All of them
+falsepositives:
+    - Unlikely, legitimate use in red teaming activities
+level: high
+tags:
+    - attack.defense_evasion
+    - attack.privilege_escalation
+    - attack.t1055
+    - attack.ta0004
+    - attack.ta0005
